@@ -51,7 +51,11 @@ export default function Login() {
         `Welcome ${userCredential.user.displayName?.split(" ")[0] || "User"}`
       );
 
-      navigate("/"); // ارجع للصفحة الرئيسية
+      if (userCredential.user.email === "hedratalat6@gmail.com") {
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       console.error(error);
       setErrorMessage("Email or password is incorrect.");

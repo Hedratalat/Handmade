@@ -1,5 +1,5 @@
 import { useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { db, auth } from "../firebase";
 import {
@@ -60,11 +60,12 @@ export default function Checkout() {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ تحقق من البيانات باستخدام Zod
     const validation = checkoutSchema.safeParse(formData);
 
     if (!validation.success) {
@@ -74,10 +75,10 @@ export default function Checkout() {
         if (field) newErrors[field] = issue.message;
       });
       setErrors(newErrors);
-      return; // خروج بدون toast
+      return;
     }
 
-    setErrors({}); // مسح الأخطاء القديمة
+    setErrors({});
 
     const user = auth.currentUser;
     if (!user) {

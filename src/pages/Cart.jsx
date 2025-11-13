@@ -85,7 +85,6 @@ export default function Cart() {
     <>
       <Navbar />
       <div className="min-h-screen  px-4 sm:px-6 md:px-10 lg:px-20 py-10 font-poppins">
-        {/* 🛍️ Title */}
         <motion.h1
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

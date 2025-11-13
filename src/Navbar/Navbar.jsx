@@ -128,7 +128,10 @@ export default function Navbar() {
           {/* ❤️ Favorite */}
           <div
             className="relative cursor-pointer"
-            onClick={() => navigate("/favorites")}
+            onClick={() => {
+              navigate("/favorites");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
           >
             <FaHeart className="w-6 h-6 md:w-7 md:h-7 text-brown hover:text-terracotta transition-colors" />
             {favoritesCount > 0 && (
@@ -141,7 +144,10 @@ export default function Navbar() {
           {/* 🛒 Cart */}
           <div
             className="relative cursor-pointer"
-            onClick={() => navigate("/cart")}
+            onClick={() => {
+              navigate("/cart");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
           >
             <FaShoppingCart className="w-6 h-6 md:w-7 md:h-7 text-brown hover:text-terracottaDark transition-colors" />
             {cartCount > 0 && (
