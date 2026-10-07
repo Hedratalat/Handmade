@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { FaQuoteLeft } from "react-icons/fa";
 import { db } from "../firebase";
 import {
@@ -15,22 +15,34 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-// ✅ التحقق (Zod Schema)
+const STEP = 3;
+const DELAY = 4000;
+
 const feedbackSchema = z.object({
   name: z
     .string()
-    .min(3, "Name must contain at least 3 characters")
+    .trim()
+    .min(1, "Please enter your name")
+    .min(3, "Name is too short")
     .max(30, "Name is too long")
     .regex(/^[a-zA-Z\s]+$/, "Name can only contain letters and spaces"),
-  email: z.string().email("Invalid email address"),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Please enter your email")
+    .email("Invalid email address"),
   message: z
     .string()
-    .min(10, "Message must be at least 10 characters")
+    .trim()
+    .min(1, "Please write a message")
+    .min(10, "Message is too short")
     .max(400, "Message is too long"),
 });
 
 export default function Feedback() {
   const [approvedFeedbacks, setApprovedFeedbacks] = useState([]);
+  const [page, setPage] = useState(0);
+  const [showAll, setShowAll] = useState(false);
 
   const {
     register,
@@ -39,22 +51,42 @@ export default function Feedback() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(feedbackSchema),
-    mode: "onChange",
+    mode: "onSubmit",
+    reValidateMode: "onChange",
+    defaultValues: { name: "", email: "", message: "" },
   });
 
-  // 🔹 جلب التعليقات المعتمدة فقط
   useEffect(() => {
     const q = query(collection(db, "feedback"), where("approved", "==", true));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setApprovedFeedbacks(
-        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
       );
     });
 
     return () => unsubscribe();
   }, []);
 
-  // 🔹 إرسال الفيدباك
+  useEffect(() => {
+    if (showAll || approvedFeedbacks.length <= STEP) return;
+
+    const timer = setInterval(() => {
+      setPage((prev) => prev + 1);
+    }, DELAY);
+
+    return () => clearInterval(timer);
+  }, [showAll, approvedFeedbacks.length]);
+
+  const total = approvedFeedbacks.length;
+  const start = total > 0 ? page % total : 0;
+  const visibleFeedbacks =
+    showAll || total <= STEP
+      ? approvedFeedbacks
+      : Array.from(
+          { length: STEP },
+          (_, k) => approvedFeedbacks[(start + k) % total],
+        );
+
   const onSubmit = async (data) => {
     try {
       await addDoc(collection(db, "feedback"), {
@@ -62,7 +94,7 @@ export default function Feedback() {
         approved: false,
         createdAt: serverTimestamp(),
       });
-      toast.success("Thank you! We’ll review and post it soon.");
+      toast.success("Thank you We’ll review and post it soon.");
       reset();
     } catch (error) {
       toast.error("Something went wrong, please try again.");
@@ -80,14 +112,12 @@ export default function Feedback() {
 
   return (
     <section className="relative bg-gradient-to-b overflow-hidden py-20 px-6 md:px-16 font-poppins">
-      {/* خلفيات خفيفة */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-20 -right-32 h-72 w-72 rounded-full  blur-3xl" />
         <div className="absolute -bottom-20 -left-32 h-72 w-72 rounded-full  blur-3xl" />
       </div>
 
       <div className="max-w-7xl mx-auto text-center mt-1">
-        {/* العنوان */}
         <motion.h2
           initial={{ opacity: 0, y: -30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -105,50 +135,68 @@ export default function Feedback() {
           viewport={{ once: true }}
           className="mt-3 text-brownDark text-lg mb-12"
         >
-          Hear what people love about our handmade creations{" "}
+          Hear what people love about our candles
         </motion.p>
-        {/* 💬 Show Feedback*/}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
           {approvedFeedbacks.length === 0 ? (
             <p className="text-warmGray text-center col-span-full">
               No feedback available yet.
             </p>
           ) : (
-            approvedFeedbacks.map((fb, i) => (
-              <motion.div
-                key={fb.id}
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: "easeOut", delay: i * 0.15 }}
-                className="bg-warmWhite border border-beige rounded-3xl p-6 shadow-lg hover:shadow-2xl 
+            <AnimatePresence mode="popLayout">
+              {visibleFeedbacks.map((fb, i) => (
+                <motion.div
+                  key={fb.id}
+                  layout
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{
+                    duration: 0.7,
+                    ease: "easeOut",
+                    delay: i * 0.15,
+                  }}
+                  className="bg-warmWhite border border-beige rounded-3xl p-6 shadow-lg hover:shadow-2xl 
           transition-all duration-500 hover:scale-105 text-left flex flex-col justify-between h-full"
-                style={{ boxShadow: "0 6px 20px rgba(201,125,96,0.15)" }}
-              >
-                <div>
-                  <FaQuoteLeft className="text-terracotta/40 text-3xl mb-3" />
-                  <p className="text-brown leading-relaxed mb-3">
-                    {fb.message}
-                  </p>
-                </div>
+                  style={{ boxShadow: "0 6px 20px rgba(201,125,96,0.15)" }}
+                >
+                  <div>
+                    <FaQuoteLeft className="text-terracotta/40 text-3xl mb-3" />
+                    <p className="text-brown leading-relaxed mb-3">
+                      {fb.message}
+                    </p>
+                  </div>
 
-                {/* الجزء السفلي ثابت دائمًا */}
-                <div className="mt-auto pt-3 border-t border-beige">
-                  <p className="font-semibold text-brownDark mt-2">{fb.name}</p>
-                </div>
-              </motion.div>
-            ))
+                  <div className="mt-auto pt-3 border-t border-beige">
+                    <p className="font-semibold text-brownDark mt-2">
+                      {fb.name}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           )}
         </div>
 
-        {/* ✉️ نموذج الإرسال */}
+        {approvedFeedbacks.length > STEP && (
+          <button
+            type="button"
+            onClick={() => setShowAll((prev) => !prev)}
+            className="mt-10 px-6 py-2 rounded-full bg-terracotta text-white hover:bg-terracottaDark transition"
+          >
+            {showAll ? "Show Less" : "Show More"}
+          </button>
+        )}
+
         <motion.form
           onSubmit={handleSubmit(onSubmit)}
+          noValidate
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
           className="mx-auto mt-20 max-w-xl bg-warmWhite rounded-3xl shadow-xl hover:shadow-2xl p-8 transition-all duration-500 text-left"
         >
-          {/* Title */}
           <motion.h3
             custom={0}
             variants={fadeInUp}
@@ -157,7 +205,6 @@ export default function Feedback() {
             Share Your Feedback
           </motion.h3>
 
-          {/* Name */}
           <motion.div custom={1} variants={fadeInUp} className="mb-4">
             <label className="block text-brownDark font-medium mb-1">
               Name *
@@ -179,7 +226,6 @@ export default function Feedback() {
             )}
           </motion.div>
 
-          {/* Email */}
           <motion.div custom={2} variants={fadeInUp} className="mb-4">
             <label className="block text-brownDark font-medium mb-1">
               Email *
@@ -203,7 +249,6 @@ export default function Feedback() {
             )}
           </motion.div>
 
-          {/* Message */}
           <motion.div custom={3} variants={fadeInUp} className="mb-6">
             <label className="block text-brownDark font-medium mb-1">
               Message *
@@ -227,9 +272,9 @@ export default function Feedback() {
             )}
           </motion.div>
 
-          {/* Button */}
           <motion.div custom={4} variants={fadeInUp}>
             <motion.button
+              type="submit"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               disabled={isSubmitting}

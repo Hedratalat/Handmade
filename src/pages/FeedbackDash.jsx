@@ -9,13 +9,12 @@ import {
 } from "firebase/firestore";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
-import { Check, X } from "lucide-react";
+import { Check, X, EyeOff } from "lucide-react";
 
 export default function FeedbackDash() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [selectedDelete, setSelectedDelete] = useState(null);
 
-  // 🔹 Fetch feedbacks
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "feedback"), (snapshot) => {
       setFeedbacks(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
@@ -23,23 +22,27 @@ export default function FeedbackDash() {
     return () => unsubscribe();
   }, []);
 
-  // ✅ Approve feedback
-  const handleApprove = async (id) => {
+  const handleToggleApprove = async (id, currentStatus) => {
     try {
-      await updateDoc(doc(db, "feedback", id), { approved: true });
-      toast.success("Feedback approved successfully!");
+      await updateDoc(doc(db, "feedback", id), { approved: !currentStatus });
+      toast.success(
+        currentStatus
+          ? "Feedback hidden from website"
+          : "Feedback approved successfully",
+      );
     } catch (error) {
-      toast.error("Failed to approve feedback", error);
+      console.error(error);
+      toast.error("Failed to update feedback");
     }
   };
 
-  // ❌ Delete feedback
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "feedback", id));
-      toast.success("Feedback deleted successfully!");
+      toast.success("Feedback deleted successfully");
     } catch (error) {
-      toast.error("Failed to delete feedback", error);
+      console.error(error);
+      toast.error("Failed to delete feedback");
     } finally {
       setSelectedDelete(null);
     }
@@ -51,7 +54,6 @@ export default function FeedbackDash() {
         Feedback Management
       </h2>
 
-      {/* Feedback List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {feedbacks.map((item, index) => (
           <motion.div
@@ -61,18 +63,38 @@ export default function FeedbackDash() {
             transition={{ delay: index * 0.1 }}
             className="bg-warmWhite rounded-2xl shadow-md p-5 border border-beige"
           >
-            <h3 className="text-lg font-semibold text-brown font-playfair">
-              {item.name}
-            </h3>
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-lg font-semibold text-brown font-playfair">
+                {item.name}
+              </h3>
+              <span
+                className={`text-xs px-2 py-1 rounded-full ${
+                  item.approved
+                    ? "bg-sage/20 text-sage"
+                    : "bg-beige text-warmGray"
+                }`}
+              >
+                {item.approved ? "Published" : "Pending"}
+              </span>
+            </div>
             <p className="text-sm text-warmGray mb-2">{item.email}</p>
             <p className="text-brownDark text-base mb-4 font-poppins">
               {item.message}
             </p>
 
-            <div className="flex justify-end gap-3 ">
-              {!item.approved && (
+            <div className="flex justify-end gap-3">
+              {item.approved ? (
                 <button
-                  onClick={() => handleApprove(item.id)}
+                  onClick={() => handleToggleApprove(item.id, item.approved)}
+                  title="Hide from website"
+                  className="bg-warmGray text-white px-4 py-2 rounded-full hover:opacity-80 transition"
+                >
+                  <EyeOff size={18} />
+                </button>
+              ) : (
+                <button
+                  onClick={() => handleToggleApprove(item.id, item.approved)}
+                  title="Approve"
                   className="bg-sage text-white px-4 py-2 rounded-full hover:bg-sageDark transition"
                 >
                   <Check size={18} />
@@ -80,7 +102,8 @@ export default function FeedbackDash() {
               )}
               <button
                 onClick={() => setSelectedDelete(item.id)}
-                className="bg-terracotta text-white px-4 py-2 rounded-full hover:bg-terracottaDark transition "
+                title="Delete"
+                className="bg-terracotta text-white px-4 py-2 rounded-full hover:bg-terracottaDark transition"
               >
                 <X size={18} />
               </button>
@@ -89,7 +112,6 @@ export default function FeedbackDash() {
         ))}
       </div>
 
-      {/* 🧡 Delete Confirmation Popup */}
       <AnimatePresence>
         {selectedDelete && (
           <motion.div

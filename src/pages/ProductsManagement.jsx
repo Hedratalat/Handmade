@@ -67,7 +67,7 @@ export default function ProductsManagement() {
     try {
       const res = await fetch(
         "https://api.cloudinary.com/v1_1/dciqod9kj/image/upload",
-        { method: "POST", body: data }
+        { method: "POST", body: data },
       );
       const json = await res.json();
       return json.secure_url;
@@ -107,7 +107,7 @@ export default function ProductsManagement() {
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = products.slice(
     indexOfFirstProduct,
-    indexOfLastProduct
+    indexOfLastProduct,
   );
   const totalPages = Math.ceil(products.length / productsPerPage);
 
@@ -136,7 +136,7 @@ export default function ProductsManagement() {
                 {product.name}
               </h3>
               <p className="text-warmGray text-sm">{product.description}</p>
-              <p className="text-sage font-bold mt-2">{product.price} EGP</p>
+              <p className="text-sage font-bold mt-2">{product.price} BHD</p>
               <p className="text-warmGray text-sm">{product.category}</p>
             </div>
 
@@ -291,6 +291,8 @@ export default function ProductsManagement() {
                 <label className="text-brown font-medium mb-1">Price</label>
                 <input
                   type="number"
+                  step="0.01"
+                  min="0"
                   value={editData.price}
                   onChange={(e) =>
                     setEditData({ ...editData, price: e.target.value })

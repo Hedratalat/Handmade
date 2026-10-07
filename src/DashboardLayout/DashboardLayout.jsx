@@ -8,10 +8,8 @@ export default function DashBoardLayout() {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-gray-50">
-      {/* Sidebar */}
       <SideBarDash isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-      {/* main content*/}
       <div className="flex-1 flex flex-col">
         <NavBarDash onMenuClick={() => setIsSidebarOpen(true)} />
         <main className="flex-1 p-4 sm:p-6 overflow-y-auto">

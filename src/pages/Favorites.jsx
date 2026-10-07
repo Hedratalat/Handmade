@@ -12,25 +12,30 @@ import {
 } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import Navbar from "../Navbar/Navbar";
-import { Heart, X, PackageOpen } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Heart, X, PackageOpen, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 import Footer from "../Footer/Footer";
+
+const arrowVariants = {
+  initial: { x: 0 },
+  hover: { x: 5 },
+};
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [cart, setCart] = useState([]); // 🛒 cart state
+  const [cart, setCart] = useState([]);
   const itemsPerPage = 9;
 
-  // 🧡 جلب المفضلات الخاصة بالمستخدم الحالي
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
       if (user) {
         const favRef = collection(db, "users", user.uid, "favorites");
         const unsubscribeFavs = onSnapshot(favRef, (snapshot) => {
           setFavorites(
-            snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+            snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
           );
         });
         return () => unsubscribeFavs();
@@ -64,7 +69,7 @@ export default function Favorites() {
     try {
       const user = auth.currentUser;
       if (!user) {
-        toast.error("Please login to manage favorites");
+        toast.error("Please login to add favorites");
         return;
       }
 
@@ -83,11 +88,10 @@ export default function Favorites() {
     }
   };
 
-  // 🛒 إضافة / إزالة من السلة
   const handleToggleCart = async (product) => {
     const user = auth.currentUser;
     if (!user) {
-      toast.error("Please login to manage your cart");
+      toast.error("Please login to add items to your cart");
       return;
     }
 
@@ -106,7 +110,7 @@ export default function Favorites() {
         description: product.description,
         imageUrl: product.imageUrl,
         price: product.price,
-        category: product.category,
+        category: product.category || "",
       });
       toast.success("Added to cart");
     }
@@ -185,7 +189,7 @@ export default function Favorites() {
 
                   <div className="mt-5 flex items-center justify-between">
                     <span className="text-lg font-bold text-sage">
-                      {product.price ? `${product.price} EGP` : "N/A"}
+                      {product.price ? `${product.price} BHD` : "N/A"}
                     </span>
                     <button
                       onClick={() => handleToggleCart(product)}
@@ -214,6 +218,29 @@ export default function Favorites() {
               <p className="text-xl font-medium text-brown font-poppins">
                 You haven’t added any favorites yet.
               </p>
+
+              <Link to="/products">
+                <motion.button
+                  whileHover="hover"
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.6 }}
+                  className="group mt-6 bg-white text-terracotta font-poppins px-8 py-3
+    rounded-full shadow-lg flex items-center justify-center gap-3 mx-auto
+    hover:bg-terracotta hover:text-white transition-all duration-300"
+                >
+                  <span className="text-lg font-semibold tracking-wide">
+                    Browse Products
+                  </span>
+                  <motion.span
+                    variants={arrowVariants}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <ArrowRight size={22} />
+                  </motion.span>
+                </motion.button>
+              </Link>
             </div>
           )}
         </div>

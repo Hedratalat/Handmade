@@ -17,12 +17,9 @@ import toast from "react-hot-toast";
 import Footer from "../Footer/Footer";
 
 function parsePrice(value) {
-  if (!value) return null;
+  if (value === null || value === undefined || value === "") return null;
   if (typeof value === "number") return value;
-  const cleaned = String(value)
-    .replace(/[,EGP,جنيه,LE,\$]/gi, "")
-    .trim();
-  const num = parseFloat(cleaned);
+  const num = parseFloat(String(value).replace(/[^\d.]/g, ""));
   return isNaN(num) ? null : num;
 }
 
@@ -58,14 +55,13 @@ export default function Products() {
     return () => unsubscribe();
   }, []);
 
-  // 🧡 جلب المفضلات الخاصة بالمستخدم الحالي
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
       if (user) {
         const favRef = collection(db, "users", user.uid, "favorites");
         const unsubscribeFavs = onSnapshot(favRef, (snapshot) => {
           setFavorites(
-            snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+            snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
           );
         });
         return () => unsubscribeFavs();
@@ -77,7 +73,6 @@ export default function Products() {
     return () => unsubscribeAuth();
   }, []);
 
-  // 🧡 إضافة / إزالة من المفضلة
   const handleToggleFavorite = async (product) => {
     const user = auth.currentUser;
     if (!user) {
@@ -100,13 +95,12 @@ export default function Products() {
         description: product.description,
         imageUrl: product.imageUrl,
         price: product.numericPrice,
-        category: product.category,
+        category: product.category || "",
       });
       toast.success("Added to favorites");
     }
   };
 
-  // 🛒 جلب السلة الخاصة بالمستخدم الحالي
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -127,7 +121,7 @@ export default function Products() {
   const handleToggleCart = async (product) => {
     const user = auth.currentUser;
     if (!user) {
-      toast.error("Please login to manage your cart");
+      toast.error("Please login to add items to your cart");
       return;
     }
 
@@ -146,19 +140,18 @@ export default function Products() {
         description: product.description,
         imageUrl: product.imageUrl,
         price: product.numericPrice,
-        category: product.category,
+        category: product.category || "",
       });
       toast.success("Added to cart");
     }
   };
 
-  // 🔍 الفلترة
   const filtered = useMemo(() => {
     let result = [...products];
 
     if (search) {
       result = result.filter((p) =>
-        p.name.toLowerCase().includes(search.toLowerCase())
+        p.name.toLowerCase().includes(search.toLowerCase()),
       );
     }
 
@@ -169,10 +162,10 @@ export default function Products() {
     if (priceFilter) {
       result = result.filter((p) => {
         const price = p.numericPrice || 0;
-        if (priceFilter === "under100") return price < 100;
-        if (priceFilter === "100-300") return price >= 100 && price <= 300;
-        if (priceFilter === "300-500") return price >= 300 && price <= 500;
-        if (priceFilter === "above500") return price > 500;
+        if (priceFilter === "under5") return price < 5;
+        if (priceFilter === "5-8") return price >= 5 && price <= 8;
+        if (priceFilter === "8-12") return price > 8 && price <= 12;
+        if (priceFilter === "above12") return price > 12;
         return true;
       });
     }
@@ -201,7 +194,7 @@ export default function Products() {
           transition={{ duration: 0.6 }}
           className="text-4xl font-playfair text-brown font-semibold"
         >
-          Explore Our Handmade Products
+          Explore Our Candle Collection
         </motion.h2>
 
         {/* Filters */}
@@ -233,10 +226,10 @@ export default function Products() {
             className="p-3 rounded-xl border border-beige focus:outline-none focus:ring-2 focus:ring-sage text-brown bg-warmWhite"
           >
             <option value="">Filter by Price</option>
-            <option value="under100">Less than 100 EGP</option>
-            <option value="100-300">100 - 300 EGP</option>
-            <option value="300-500">300 - 500 EGP</option>
-            <option value="above500">More than 500 EGP</option>
+            <option value="under5">Less than 5 BHD</option>
+            <option value="5-8">5 - 8 BHD</option>
+            <option value="8-12">8 - 12 BHD</option>
+            <option value="above12">More than 12 BHD</option>
           </select>
         </div>
 
@@ -295,7 +288,7 @@ export default function Products() {
                   <div className="mt-5 flex items-center justify-between">
                     <span className="text-lg font-bold text-sage">
                       {product.numericPrice
-                        ? `${product.numericPrice} EGP`
+                        ? `${product.numericPrice} BHD`
                         : "N/A"}
                     </span>
                     <button

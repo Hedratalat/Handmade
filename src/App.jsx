@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from "react";
-import { HashRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import ButtonScroll from "./ButtonScroll/ButtonScroll";
 import ProtectedRoute from "./pages/ProtectedRoute";
@@ -8,7 +8,6 @@ import "./App.css";
 // Lazy load pages
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
-const SignUp = lazy(() => import("./pages/SignUp"));
 const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
@@ -19,7 +18,7 @@ const FeedbackDash = lazy(() => import("./pages/FeedbackDash"));
 const MessageDash = lazy(() => import("./pages/MessageDash"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const Cart = lazy(() => import("./pages/Cart"));
-const Checkout = lazy(() => import("./pages/Checkout"));
+// const Checkout = lazy(() => import("./pages/Checkout"));
 const UserDash = lazy(() => import("./pages/UserDash"));
 const OrdersDah = lazy(() => import("./pages/OrdersDash"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
@@ -27,20 +26,19 @@ const ProductsManagement = lazy(() => import("./pages/ProductsManagement"));
 
 // Spinner component
 const LoadingSpinner = () => (
-  <div className="flex items-center justify-center h-screen">
-    <div className="w-16 h-16 border-4 border-t-orange-500 border-b-orange-500 border-l-gray-300 border-r-gray-300 rounded-full animate-spin"></div>
+  <div className="flex items-center justify-center h-screen bg-cream">
+    <div className="w-14 h-14 rounded-full border-4 border-beige border-t-terracotta animate-spin" />
   </div>
 );
 
 function App() {
   return (
     <>
-      <HashRouter>
+      <BrowserRouter>
         <Suspense fallback={<LoadingSpinner />}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/verifyEmail" element={<VerifyEmail />} />
             <Route path="/about" element={<About />} />
@@ -48,7 +46,7 @@ function App() {
             <Route path="/products" element={<Products />} />
             <Route path="/favorites" element={<Favorites />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
+            {/* <Route path="/checkout" element={<Checkout />} /> */}
 
             <Route
               path="/dashboard"
@@ -71,7 +69,7 @@ function App() {
             </Route>
           </Routes>
         </Suspense>
-      </HashRouter>
+      </BrowserRouter>
       <ButtonScroll />
       <Toaster position="top-center" reverseOrder={false} />
     </>

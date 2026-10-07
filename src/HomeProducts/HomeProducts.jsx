@@ -17,6 +17,15 @@ import { Heart, X, ArrowRight } from "lucide-react";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 
+const toCartItem = (product) => ({
+  id: product.id,
+  name: product.name,
+  description: product.description,
+  imageUrl: product.imageUrl,
+  price: product.price,
+  category: product.category || "",
+});
+
 const arrowVariants = {
   initial: { x: 0 },
   hover: { x: 5 },
@@ -32,24 +41,23 @@ export default function HomeProducts() {
     const q = query(
       collection(db, "Products"),
       orderBy("createdAt", "desc"),
-      limit(6)
+      limit(6),
     );
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
         setProducts(
-          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
         );
       },
       (error) => {
         console.warn("Failed to fetch products:", error.message);
         setProducts([]);
-      }
+      },
     );
     return () => unsubscribe();
   }, []);
 
-  // جلب المفضلات
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -58,13 +66,13 @@ export default function HomeProducts() {
           favRef,
           (snapshot) => {
             setFavorites(
-              snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+              snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
             );
           },
           (error) => {
             console.warn("Failed to fetch favorites:", error.message);
             setFavorites([]);
-          }
+          },
         );
         return () => unsubscribeFavs();
       } else {
@@ -74,7 +82,6 @@ export default function HomeProducts() {
     return () => unsubscribeAuth();
   }, []);
 
-  // جلب السلة
   useEffect(() => {
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
       if (user) {
@@ -83,13 +90,13 @@ export default function HomeProducts() {
           cartRef,
           (snapshot) => {
             setCart(
-              snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+              snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
             );
           },
           (error) => {
             console.warn("Failed to fetch cart:", error.message);
             setCart([]);
-          }
+          },
         );
         return () => unsubscribeCart();
       } else {
@@ -115,14 +122,14 @@ export default function HomeProducts() {
       await deleteDoc(doc(db, "users", user.uid, "favorites", favDoc.id));
       toast.error("Removed from favorites");
     } else {
-      await addDoc(favRef, product);
+      await addDoc(favRef, toCartItem(product));
       toast.success("Added to favorites");
     }
   };
 
   const handleToggleCart = async (product) => {
     const user = auth.currentUser;
-    if (!user) return toast.error("Please login to manage cart");
+    if (!user) return toast.error("Please login to add items to your cart");
 
     const cartRef = collection(db, "users", user.uid, "cart");
     const q = query(cartRef, where("id", "==", product.id));
@@ -133,7 +140,7 @@ export default function HomeProducts() {
       await deleteDoc(doc(db, "users", user.uid, "cart", cartDoc.id));
       toast.error("Removed from cart");
     } else {
-      await addDoc(cartRef, product);
+      await addDoc(cartRef, toCartItem(product));
       toast.success("Added to cart");
     }
   };
@@ -147,7 +154,7 @@ export default function HomeProducts() {
         viewport={{ once: true }}
         className="text-4xl font-playfair text-brown font-semibold"
       >
-        Featured Creations
+        Featured Candles
       </motion.h2>
 
       <motion.p
@@ -157,8 +164,7 @@ export default function HomeProducts() {
         viewport={{ once: true }}
         className="mt-3 text-brownDark text-lg"
       >
-        Our most loved handmade pieces, crafted with care and attention to
-        detail
+        Our most loved scents, poured with care and attention to detail
       </motion.p>
 
       {/* Products Grid */}
@@ -210,7 +216,7 @@ export default function HomeProducts() {
 
               <div className="mt-5 flex items-center justify-between">
                 <span className="text-lg font-bold text-sage">
-                  {product.price || "N/A"} EGP
+                  {product.price || "N/A"} BHD
                 </span>
                 <button
                   onClick={() => handleToggleCart(product)}
@@ -228,7 +234,6 @@ export default function HomeProducts() {
         ))}
       </div>
 
-      {/* View All Products Button */}
       <div className="mt-10">
         <Link to="/products">
           <motion.button

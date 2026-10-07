@@ -17,25 +17,22 @@ export default function Navbar() {
   const [isUserOpen, setIsUserOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [favoritesCount, setFavoritesCount] = useState(0);
-  const [cartCount, setCartCount] = useState(0); // 🛒 عدد المنتجات في السلة
+  const [cartCount, setCartCount] = useState(0);
 
   const navigate = useNavigate();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const toggleUserMenu = () => setIsUserOpen(!isUserOpen);
 
-  // 🧡 متابعة المستخدم + المفضلات + السلة
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // ❤️ المفضلات
         const favRef = collection(db, "users", currentUser.uid, "favorites");
         const unsubscribeFav = onSnapshot(favRef, (snapshot) => {
           setFavoritesCount(snapshot.size);
         });
 
-        // 🛒 السلة
         const cartRef = collection(db, "users", currentUser.uid, "cart");
         const unsubscribeCart = onSnapshot(cartRef, (snapshot) => {
           setCartCount(snapshot.size);
@@ -64,19 +61,19 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 w-full bg-cream/70 backdrop-blur-md shadow-md z-50 font-poppins">
       <div className="max-w-7xl mx-auto flex items-center justify-between p-4">
-        <h2 className="text-brown text-3xl font-playfair font-bold tracking-wide">
+        <h2 className="text-brown text-3xl font-playfair font-bold tracking-wide leading-none mb-1">
           <Link
             to="/"
             onClick={() => {
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
           >
-            Handmade
+            il.Candellas
           </Link>
         </h2>
 
         {/* Desktop Menu */}
-        <ul className="hidden md:flex gap-5 text-brown text-lg font-bold">
+        <ul className="hidden lg:flex gap-5 text-brown text-lg font-bold">
           <li>
             <Link
               to="/"
@@ -112,6 +109,18 @@ export default function Navbar() {
           </li>
           <li>
             <Link
+              className="hover:text-terracotta transition-colors"
+              to="/track-order"
+              onClick={() => {
+                setIsOpen(false);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
+              My Order
+            </Link>
+          </li>
+          <li>
+            <Link
               to="/contact"
               className="hover:text-terracotta transition-colors"
               onClick={() => {
@@ -123,9 +132,8 @@ export default function Navbar() {
           </li>
         </ul>
 
-        {/* Icons + User */}
-        <div className="flex items-center gap-4 relative">
-          {/* ❤️ Favorite */}
+        <div className="flex items-center gap-2 sm:gap-4 relative">
+          {/*  Favorite */}
           <div
             className="relative cursor-pointer"
             onClick={() => {
@@ -141,7 +149,7 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* 🛒 Cart */}
+          {/*  Cart */}
           <div
             className="relative cursor-pointer"
             onClick={() => {
@@ -157,9 +165,8 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* 👤 User */}
+          {/*  User */}
           <div className="relative group">
-            {/* أيقونة المستخدم */}
             <div
               onClick={toggleUserMenu}
               className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-brown  hover:bg-terracotta flex items-center justify-center
@@ -183,13 +190,6 @@ export default function Navbar() {
                     >
                       Login
                     </Link>
-                    <Link
-                      to="/signup"
-                      className="block px-4 py-2 text-brown hover:bg-cream hover:text-terracotta transition-colors"
-                      onClick={() => setIsUserOpen(false)}
-                    >
-                      Sign Up
-                    </Link>
                   </>
                 )}
                 {user && (
@@ -204,9 +204,9 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* 📱 Mobile Menu */}
+          {/* Mobile Menu */}
           <button
-            className="md:hidden ml-2 text-brown focus:outline-none transition-transform duration-300"
+            className="lg:hidden ml-2 text-brown focus:outline-none transition-transform duration-300"
             onClick={toggleMenu}
           >
             {isOpen ? (
@@ -219,7 +219,7 @@ export default function Navbar() {
       </div>
 
       {isOpen && (
-        <ul className="md:hidden flex flex-col gap-2 p-4 bg-cream shadow-md text-lg font-bold text-brown">
+        <ul className="lg:hidden flex flex-col gap-2 p-4 bg-cream shadow-md text-lg font-bold text-brown">
           <li>
             <Link
               className="hover:text-terracotta transition-colors"
@@ -254,6 +254,18 @@ export default function Navbar() {
               }}
             >
               Products
+            </Link>
+          </li>
+          <li>
+            <Link
+              className="hover:text-terracotta transition-colors"
+              to="/track-order"
+              onClick={() => {
+                setIsOpen(false);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
+              My Order
             </Link>
           </li>
           <li>

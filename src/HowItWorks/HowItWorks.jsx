@@ -7,19 +7,19 @@ export default function HowItWorks() {
       icon: <FaSearch className="w-10 h-10 text-warmWhite" />,
       title: "Browse & Discover",
       description:
-        "Explore our curated collection of handmade products from talented artisans.",
+        "Explore our collection of scented candles in a wide range of fragrances, sizes, and styles.",
     },
     {
       icon: <FaCartPlus className="w-10 h-10 text-warmWhite" />,
       title: "Select Your Favorites",
       description:
-        "Add unique pieces to your cart and customize options like size and color.",
+        "Add your favorite candles to your cart and choose options like scent and size.",
     },
     {
       icon: <FaTruck className="w-10 h-10 text-warmWhite" />,
       title: "Enjoy Fast Delivery",
       description:
-        "Receive your handcrafted treasures carefully packaged and ready to enjoy.",
+        "Receive your candles carefully packaged and ready to light up your space.",
     },
   ];
 
@@ -49,7 +49,7 @@ export default function HowItWorks() {
         viewport={{ once: true }}
         className="mt-3 text-brownDark text-lg"
       >
-        Follow these simple steps to get your handmade treasures delivered right
+        Follow these simple steps to get your favorite candles delivered right
         to your door.
       </motion.p>
 
@@ -65,8 +65,8 @@ export default function HowItWorks() {
               index === 0
                 ? "md:items-start text-left"
                 : index === 2
-                ? "md:items-end text-right"
-                : "text-center"
+                  ? "md:items-end text-right"
+                  : "text-center"
             }`}
             variants={stepVariants}
             initial="hidden"
@@ -85,8 +85,8 @@ export default function HowItWorks() {
                 index === 0
                   ? "text-center md:text-left"
                   : index === 2
-                  ? "text-center md:text-right"
-                  : "text-center"
+                    ? "text-center md:text-right"
+                    : "text-center"
               }`}
             >
               {step.description}

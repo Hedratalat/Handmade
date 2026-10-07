@@ -11,9 +11,9 @@ export default function ShopWithUs() {
           className="text-terracotta transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
         />
       ),
-      title: "Unique & Authentic",
+      title: "Premium Fragrances",
       description:
-        "Every piece is handmade and one-of-a-kind, crafted with love and skill.",
+        "Rich, long-lasting scents carefully blended to create a warm and inviting atmosphere.",
     },
     {
       id: 2,
@@ -23,9 +23,9 @@ export default function ShopWithUs() {
           className="text-sageDark transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-110"
         />
       ),
-      title: "Sustainable",
+      title: "Natural Ingredients",
       description:
-        "Eco-friendly materials and mindful production that care for our planet.",
+        "Made with clean-burning wax and natural materials for a cleaner, healthier burn.",
     },
     {
       id: 3,
@@ -35,9 +35,9 @@ export default function ShopWithUs() {
           className="text-terracottaDark transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
         />
       ),
-      title: "Support Artisans",
+      title: "Perfect for Every Moment",
       description:
-        "Each purchase empowers local artisans and keeps traditional crafts alive.",
+        "From cozy nights to special gifts, our candles add a touch of calm to any occasion.",
     },
     {
       id: 4,
@@ -49,7 +49,7 @@ export default function ShopWithUs() {
       ),
       title: "Quality Assured",
       description:
-        "Every item is inspected with care to ensure exceptional quality and finish.",
+        "Every candle is tested for a smooth, even burn and a beautiful finish.",
     },
   ];
 
@@ -93,7 +93,8 @@ export default function ShopWithUs() {
         viewport={{ once: true }}
         className="mt-3 text-brownDark text-lg"
       >
-        Because every handmade piece tells a story worth owning
+        Because every candle brings warmth, light, and a little calm to your
+        space
       </motion.p>
 
       {/* الكروت */}

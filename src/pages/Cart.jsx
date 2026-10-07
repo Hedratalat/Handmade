@@ -29,7 +29,7 @@ export default function Cart() {
         const cartRef = collection(db, "users", user.uid, "cart");
         const unsubscribeCart = onSnapshot(cartRef, (snapshot) => {
           setCartItems(
-            snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+            snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })),
           );
           setLoading(false);
         });
@@ -47,7 +47,7 @@ export default function Cart() {
     try {
       const user = auth.currentUser;
       if (!user) {
-        toast.error("Please login to manage your cart");
+        toast.error("Please login to add items to your cart");
         return;
       }
 
@@ -71,8 +71,8 @@ export default function Cart() {
   };
 
   const totalPrice = cartItems.reduce(
-    (sum, item) => sum + (item.price || 0),
-    0
+    (sum, item) => sum + (Number(item.price) || 0),
+    0,
   );
 
   const handleCheckout = () => {
@@ -85,14 +85,14 @@ export default function Cart() {
     <>
       <Navbar />
       <div className="min-h-screen  px-4 sm:px-6 md:px-10 lg:px-20 py-10 font-poppins">
-        <motion.h1
+        <motion.h2
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="text-3xl sm:text-4xl font-playfair font-bold text-brown text-center mb-10"
         >
           Your Shopping Cart
-        </motion.h1>
+        </motion.h2>
 
         {/* 🔄 Loading */}
         {loading ? (
@@ -131,7 +131,7 @@ export default function Cart() {
                       {item.description}
                     </p>
                     <p className="text-sage font-bold text-lg">
-                      {item.price} EGP
+                      {item.price ? `${item.price} BHD` : "N/A"}
                     </p>
                   </div>
                   <button
@@ -157,7 +157,7 @@ export default function Cart() {
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-between border-t border-beige pt-6 gap-4">
               <h2 className="text-xl sm:text-2xl font-semibold text-brown text-center sm:text-left">
                 Total:{" "}
-                <span className="text-sage font-bold">{totalPrice} EGP</span>
+                <span className="text-sage font-bold">{totalPrice} BHD</span>
               </h2>
               <motion.button
                 whileHover={{ scale: 1.05 }}

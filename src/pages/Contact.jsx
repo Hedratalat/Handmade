@@ -1,5 +1,5 @@
 import Navbar from "../Navbar/Navbar";
-import { FaFacebook, FaInstagram, FaWhatsapp } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaWhatsapp, FaTiktok } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,11 +8,19 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 import toast, { Toaster } from "react-hot-toast";
 import Footer from "../Footer/Footer";
+const bahrainPhoneRegex = /^(\+973|00973|973)?[36]\d{7}$/;
 
 const contactSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
   email: z.string().email("Invalid email address"),
-  subject: z.string().min(3, "Subject must be at least 3 characters"),
+  phone: z
+    .string()
+    .trim()
+    .refine(
+      (value) => bahrainPhoneRegex.test(value.replace(/[\s-]/g, "")),
+      "Enter a valid Bahrain phone number",
+    )
+    .transform((value) => "+973" + value.replace(/[\s-]/g, "").slice(-8)),
   message: z.string().min(10, "Message must be at least 10 characters"),
 });
 
@@ -24,6 +32,12 @@ export default function Contact() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(contactSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+    },
   });
 
   const onSubmit = async (data) => {
@@ -46,14 +60,14 @@ export default function Contact() {
       <Navbar />
 
       <div className=" min-h-screen flex flex-col items-center justify-center px-6 py-12">
-        <motion.h1
+        <motion.h2
           className="text-4xl font-playfair text-brown mb-12 text-center"
           initial={{ opacity: 0, y: -60 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           Contact Us
-        </motion.h1>
+        </motion.h2>
 
         <motion.div
           className="bg-warmWhite rounded-2xl shadow-md p-10 w-full max-w-6xl border border-border flex flex-col md:flex-row gap-10"
@@ -94,15 +108,16 @@ export default function Contact() {
             )}
 
             <input
-              type="text"
-              placeholder="Subject"
+              type="tel"
+              inputMode="tel"
+              placeholder="Phone Number"
               data-gramm="false"
               data-gramm_editor="false"
-              {...register("subject")}
+              {...register("phone")}
               className="w-full p-3 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-sage font-poppins"
             />
-            {errors.subject && (
-              <p className="text-red-500 text-sm">{errors.subject.message}</p>
+            {errors.phone && (
+              <p className="text-red-500 text-sm">{errors.phone.message}</p>
             )}
 
             <textarea
@@ -147,11 +162,12 @@ export default function Contact() {
             <div className="mt-6 space-y-3">
               <p className="font-medium">
                 📧 Email:{" "}
-                <span className="text-terracotta">support@handmade.com</span>
+                <span className="text-terracotta">
+                  ilcandellas.store@gmail.com
+                </span>
               </p>
               <p className="font-medium">
-                📞 Phone:{" "}
-                <span className="text-terracotta">+20 100 123 4567</span>
+                📞 Phone: <span className="text-terracotta">+973 37721142</span>
               </p>
               <p className="font-medium">
                 🕓 Working Hours:{" "}
@@ -176,9 +192,17 @@ export default function Contact() {
               >
                 <FaFacebook />
               </a>
-
               <a
-                href="https://www.instagram.com/"
+                href="https://www.tiktok.com/@ilcandellas?_t=ZS-8yuIE7gpsN3&_r=1&fbclid=PAZXh0bgNhZW0CMTEAcGRvZgJzcnRjBmFwcF9pZA85MzY2MTk3NDMzOTI0NTkAAadHwi4fU6SQgs1i1fmj5wt5QcUVNQBr481mRIJYOvZhqg7ReBeCN0hGTCO2YQ_aem_zFMkarUGsCHijxDEUvJ6hA"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TikTok"
+                className="hover:text-terracottaDark transition-transform transform hover:scale-110"
+              >
+                <FaTiktok />
+              </a>
+              <a
+                href="https://www.instagram.com/il.candellas/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -188,7 +212,7 @@ export default function Contact() {
               </a>
 
               <a
-                href="https://wa.me/201001234567"
+                href="https://wa.me/+97337721142"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"

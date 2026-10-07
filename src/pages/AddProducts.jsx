@@ -27,7 +27,7 @@ export default function AddProducts() {
         {
           method: "POST",
           body: data,
-        }
+        },
       );
       const json = await res.json();
       return json.secure_url; // رابط الصورة النهائي
@@ -136,10 +136,12 @@ export default function AddProducts() {
 
         {/* Price */}
         <div className="flex flex-col">
-          <label className="text-brown font-medium mb-2">Price ($)</label>
+          <label className="text-brown font-medium mb-2">Price (BHD)</label>
           <input
             type="number"
             name="price"
+            step="0.01"
+            min="0"
             value={productData.price}
             onChange={handleChange}
             required
